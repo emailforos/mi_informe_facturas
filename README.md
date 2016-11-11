@@ -1,2 +1,2 @@
-# Mi factura_detallada
-Formato personalizado de impresión de facturas de cliente de FacturaScripts.
+# mi_informe_facturas
+Personalización de Informe->Facturas para añadir pequeñas modificaciones.
