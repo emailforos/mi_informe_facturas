@@ -43,7 +43,7 @@ class mi_informe_facturas extends fs_controller
    
    public function __construct()
    {
-      parent::__construct(__CLASS__, 'Facturas', 'informes', FALSE, TRUE);
+      parent::__construct(__CLASS__, 'Mis FACTURAS', 'informes', FALSE, TRUE);
    }
    
    protected function private_core()
