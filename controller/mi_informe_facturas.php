@@ -487,7 +487,7 @@ class mi_informe_facturas extends fs_controller
             
             /// tabla principal
             $pdf_doc->new_table();
-            $elis = "INICIO";
+            $elis = 0;
             $pdf_doc->add_table_header(
                array(
                    'serie' => '<b>S</b>',
@@ -508,45 +508,23 @@ class mi_informe_facturas extends fs_controller
             );
             for($i = 0; $i < $lppag AND $linea_actual < $total_lineas; $i++)
             {
-                if ($elis != $facturas[$linea_actual]->codigo){
-                    $linea = array(
-                        'serie' => $facturas[$linea_actual]->codserie,
-                        'factura' => $facturas[$linea_actual]->codigo,
-                        //'asiento' => '-',
-                        'fecha' => $facturas[$linea_actual]->fecha,
-                        //'subcuenta' => '-',
-                        /* Nueva columna */
-                        'cliente'=> $facturas[$linea_actual]->codcliente,
-                        'descripcion' => $facturas[$linea_actual]->nombrecliente,
-                        'cifnif' => $facturas[$linea_actual]->cifnif,
-                        'base' => 0,
-                        'iva' => 0,
-                        'totaliva' => 0,
-                        'totalrecargo' => 0,
-                        'totalirpf' => '-',
-                        'total' => 0
-                    );
-                    $elis=$facturas[$linea_actual]->codigo;
-                } else {
-                    $linea = array(
-                        'serie' => $facturas[$linea_actual]->codserie,
-                        'factura' => '-',
-                        //'asiento' => '-',
-                        'fecha' => $facturas[$linea_actual]->fecha,
-                        //'subcuenta' => '-',
-                        /* Nueva columna */
-                        'cliente'=> $facturas[$linea_actual]->codcliente,
-                        'descripcion' => $facturas[$linea_actual]->nombrecliente,
-                        'cifnif' => $facturas[$linea_actual]->cifnif,
-                        'base' => 0,
-                        'iva' => 0,
-                        'totaliva' => 0,
-                        'totalrecargo' => 0,
-                        'totalirpf' => '-',
-                        'total' => 0
-                    );
-                    $elis=$facturas[$linea_actual]->codigo;
-                }
+                $linea = array(
+                    'serie' => $facturas[$linea_actual]->codserie,
+                    'factura' => $facturas[$linea_actual]->codigo,
+                    //'asiento' => '-',
+                    'fecha' => $facturas[$linea_actual]->fecha,
+                    //'subcuenta' => '-',
+                    /* Nueva columna */
+                    'cliente'=> $facturas[$linea_actual]->codcliente,
+                    'descripcion' => $facturas[$linea_actual]->nombrecliente,
+                    'cifnif' => $facturas[$linea_actual]->cifnif,
+                    'base' => 0,
+                    'iva' => 0,
+                    'totaliva' => 0,
+                    'totalrecargo' => 0,
+                    'totalirpf' => '-',
+                    'total' => 0
+                );
                $asiento = $facturas[$linea_actual]->get_asiento();
                if($asiento)
                {
@@ -565,6 +543,7 @@ class mi_informe_facturas extends fs_controller
                   /// añade la línea al PDF
                   $pdf_doc->add_table_row($linea);
                   $linea['totalirpf'] = '-';
+                  $elis = $facturas[$linea_actual]->codigo;
                }
                
                $linivas = $facturas[$linea_actual]->get_lineas_iva();
@@ -587,30 +566,41 @@ class mi_informe_facturas extends fs_controller
                      {
                         $impuestos[$liva->iva]['iva'] = $liva->totaliva;
                      }
-                     else
+                     else {
                         $impuestos[$liva->iva]['iva'] += $liva->totaliva;
-                     
-                     /// completamos y añadimos la línea al PDF
-                     $linea['base'] = $this->show_numero($liva->neto);
-                     $linea['iva'] = $this->show_numero($liva->iva);
-                     $linea['totaliva'] = $this->show_numero($liva->totaliva);
-                     $linea['totalrecargo'] = $this->show_numero($liva->totalrecargo);
-                     $linea['total'] = $this->show_numero($liva->totallinea);
-                     $pdf_doc->add_table_row($linea);
-                     
-                     if($nueva_linea)
-                     {
-                        $i++;
                      }
-                     else
+                    /// completamos y añadimos la línea al PDF
+                    if ($elis != $facturas[$linea_actual]->codigo){
+                       $linea['base'] = $this->show_numero($liva->neto);
+                       $linea['iva'] = $this->show_numero($liva->iva);
+                       $linea['totaliva'] = $this->show_numero($liva->totaliva);
+                       $linea['totalrecargo'] = $this->show_numero($liva->totalrecargo);
+                       $linea['total'] = $this->show_numero($liva->totallinea);
+                       $pdf_doc->add_table_row($linea);
+                       $elis = $facturas[$linea_actual]->codigo;
+
+                    } else {
+                       $linea['factura'] = '-';
+                       $linea['base'] = $this->show_numero($liva->neto);
+                       $linea['iva'] = $this->show_numero($liva->iva);
+                       $linea['totaliva'] = $this->show_numero($liva->totaliva);
+                       $linea['totalrecargo'] = $this->show_numero($liva->totalrecargo);
+                       $linea['total'] = $this->show_numero($liva->totallinea);
+                       $pdf_doc->add_table_row($linea);
+                       $elis = $facturas[$linea_actual]->codigo;
+
+                    }              
+                    if($nueva_linea) {
+                        $i++;
+                     } else {
                         $nueva_linea = TRUE;
+                     }     
                   }
                }
-               
-               $totalrecargo += $facturas[$linea_actual]->totalrecargo;
-               $totalirpf += $facturas[$linea_actual]->totalirpf;
-               $total += $facturas[$linea_actual]->total;
-               $linea_actual++;
+                $totalrecargo += $facturas[$linea_actual]->totalrecargo;
+                $totalirpf += $facturas[$linea_actual]->totalirpf;
+                $total += $facturas[$linea_actual]->total;
+                $linea_actual++;
             }
             $pdf_doc->save_table(
                array(
