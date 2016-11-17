@@ -1693,6 +1693,7 @@ class mi_informe_facturas extends fs_controller
       //Busco todos los años entre las dos fechas
       $anyoini = date('Y', strtotime($_POST['desde']));
       $anyofin = date('Y', strtotime($_POST['hasta']));
+      $mesfin = date('n', strtotime($_POST['hasta']));
       $i=$anyofin;
       $anyos = array();
       while ($anyoini<=$i ){
@@ -1738,7 +1739,7 @@ class mi_informe_facturas extends fs_controller
          
          header("content-type:application/csv;charset=UTF-8");
          header("Content-Disposition: attachment; filename=\"informe_ventas.csv\"");
-         echo "codcliente;nombre;año;ene;feb;mar;abr;may;jun;jul;ago;sep;oct;nov;dic;total;%VAR\n";
+         echo "codcliente;nombre;año;ene;feb;mar;abr;may;jun;jul;ago;sep;oct;nov;dic;periodo;%comp;total;%VAR\n";
          
          $cliente = new cliente();
          $stats = array();
@@ -1768,12 +1769,17 @@ class mi_informe_facturas extends fs_controller
                        11 => 0,
                        12 => 0,
                        13 => 0,
-                       14 => 0
+                       14 => 0,
+                       15 => 0,
+                       16 => 0
                    );
                 }
             }
             $stats[ $d['codcliente'] ][ $anyo ][ $mes ] += floatval($d['total']);
-            $stats[ $d['codcliente'] ][ $anyo ][13] += floatval($d['total']);
+            if ($mes <= $mesfin){
+                $stats[ $d['codcliente'] ][ $anyo ][13] += floatval($d['total']);
+            }
+            $stats[ $d['codcliente'] ][ $anyo ][15] += floatval($d['total']);
          }
          $totales = array();
          foreach($stats as $i => $value)
@@ -1786,10 +1792,10 @@ class mi_informe_facturas extends fs_controller
             // $value2 alamcena las 14 columnas correspondientes al año $j
                if($anterior > 0)
                {
-                  $value[$j][14] = ($value2[13]-$anterior)*100/$anterior;
+                  $value[$j][16] = ($value2[15]-$anterior)*100/$anterior;
                }
                
-               $anterior = $value2[13];
+               $anterior = $value2[15];
                
                if( isset($totales[$j]) )
                {
@@ -1823,7 +1829,7 @@ class mi_informe_facturas extends fs_controller
                
                echo "\n";
             }
-            echo ";;;;;;;;;;;;;;;\n";
+            echo ";;;;;;;;;;;;;;;;;\n";
          }
          
          foreach( array_reverse($totales, TRUE) as $i => $value)
