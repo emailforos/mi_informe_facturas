@@ -1690,7 +1690,15 @@ class mi_informe_facturas extends fs_controller
       $sql = "SELECT codcliente,fecha,SUM(neto) as total FROM facturascli"
               . " WHERE fecha >= ".$this->empresa->var2str($_POST['desde'])
               . " AND fecha <= ".$this->empresa->var2str($_POST['hasta']);
-      
+      //Busco todos los años entre las dos fechas
+      $anyoini = date('Y', strtotime($_POST['desde']));
+      $anyofin = date('Y', strtotime($_POST['hasta']));
+      $i=$anyofin;
+      $anyos = array();
+      while ($anyoini<=$i ){
+          $anyos[$i]=(string)$i;
+          $i--;
+      }
       if($_POST['codpais'] != '')
       {
          $sql .= " AND codpais = ".$this->empresa->var2str($_POST['codpais']);
@@ -1734,44 +1742,51 @@ class mi_informe_facturas extends fs_controller
          
          $cliente = new cliente();
          $stats = array();
+         // Iniciamos stats con datos vacíos
+         foreach ($anyos as $a){
+             
+         }
          foreach($data as $d)
          {
             $anyo = date('Y', strtotime($d['fecha']));
             $mes = date('n', strtotime($d['fecha']));
             if( !isset($stats[ $d['codcliente'] ][ $anyo ]) )
             {
-               $stats[ $d['codcliente'] ][ $anyo ] = array(
-                   1 => 0,
-                   2 => 0,
-                   3 => 0,
-                   4 => 0,
-                   5 => 0,
-                   6 => 0,
-                   7 => 0,
-                   8 => 0,
-                   9 => 0,
-                   10 => 0,
-                   11 => 0,
-                   12 => 0,
-                   13 => 0,
-                   14 => 0
-               );
+                foreach ($anyos as $a) //Iniciamos para cada año. No para solo los años que hay ventas
+                {
+                    $stats[ $d['codcliente'] ][ $a ] = array(
+                       1 => 0,
+                       2 => 0,
+                       3 => 0,
+                       4 => 0,
+                       5 => 0,
+                       6 => 0,
+                       7 => 0,
+                       8 => 0,
+                       9 => 0,
+                       10 => 0,
+                       11 => 0,
+                       12 => 0,
+                       13 => 0,
+                       14 => 0
+                   );
+                }
             }
-            
             $stats[ $d['codcliente'] ][ $anyo ][ $mes ] += floatval($d['total']);
             $stats[ $d['codcliente'] ][ $anyo ][13] += floatval($d['total']);
          }
-         
          $totales = array();
          foreach($stats as $i => $value)
          {
             /// calculamos la variación y los totales
+            // $value almacena las 14 columnas de cada uno de los años para el cliente $i
             $anterior = 0;
             foreach( array_reverse($value, TRUE) as $j => $value2 )
             {
+            // $value2 alamcena las 14 columnas correspondientes al año $j
                if($anterior > 0)
                {
-                  $value[$j][14] = ($value2[13]*100/$anterior) - 100;
+                  $value[$j][14] = ($value2[13]-$anterior)*100/$anterior;
                }
                
                $anterior = $value2[13];
@@ -1780,15 +1795,15 @@ class mi_informe_facturas extends fs_controller
                {
                   foreach($value2 as $k => $value3)
                   {
-                     $totales[$j][$k] += $value3;
+                    $totales[$j][$k] += $value3;
                   }
                }
                else
                {
-                  $totales[$j] = $value2;
+                  $totales[$j] = $value2; //contiene matriz de [año $j][14 valores]
                }
             }
-            
+           
             $cli = $cliente->get($i);
             foreach($value as $j => $value2)
             {

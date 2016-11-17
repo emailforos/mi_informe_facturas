@@ -8,4 +8,4 @@ Personalización de Informe->Facturas para añadir pequeñas modificaciones.
 <li>Ahora cuando se selecciona Todas, filtra por nuestras facturas de ventas. Series A, XI y XF
 </ul>
 </ul>
-Objetivo a medio/largo plazo es seleccionar las series por checkbox en vez de desplegable.
+<b>Objetivo a medio/largo plazo es seleccionar las series por checkbox en vez de desplegable.</b>
