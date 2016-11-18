@@ -1787,16 +1787,36 @@ class mi_informe_facturas extends fs_controller
             /// calculamos la variación y los totales
             // $value almacena las 14 columnas de cada uno de los años para el cliente $i
             $anterior = 0;
+            $anteper = 0;
+            $iter = 0;
             foreach( array_reverse($value, TRUE) as $j => $value2 )
             {
             // $value2 alamcena las 14 columnas correspondientes al año $j
-               if($anterior > 0)
+               if($iter>0)
                {
-                  $value[$j][16] = ($value2[15]-$anterior)*100/$anterior;
+                  if ($anterior > 0){ 
+                    $value[$j][16] = ($value2[15]-$anterior)*100/$anterior;
+                  } else {
+                      if ($anterior == $value[$j][15]){
+                            $value[$j][16] = 0;
+                      } else {
+                            $value[$j][16] = 100;
+                      }
+                  }
+                  if($anteper > 0){
+                    $value[$j][14] = ($value2[13]-$anteper)*100/$anteper;
+                  } else {
+                        if ($anteper == $value[$j][13]){
+                            $value[$j][14] = 0;
+                      } else {
+                            $value[$j][14] = 100;
+                      }
+                  }
                }
-               
                $anterior = $value2[15];
-               
+               $anteper = $value2[13];
+               $iter++;
+               // Calculamos totales.
                if( isset($totales[$j]) )
                {
                   foreach($value2 as $k => $value3)
@@ -1838,7 +1858,7 @@ class mi_informe_facturas extends fs_controller
             $l_total = 0;
             foreach($value as $j => $value3)
             {
-               if($j < 13)
+               if($j < 15)
                {
                   echo ';'.number_format($value3, FS_NF0, ',', '');
                   $l_total += $value3;
