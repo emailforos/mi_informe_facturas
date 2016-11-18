@@ -1821,15 +1821,19 @@ class mi_informe_facturas extends fs_controller
                {
                   foreach($value2 as $k => $value3)
                   {
-                    $totales[$j][$k] += $value3;
+                    if ($k == 13 OR $k == 14){
+                        $totales[$j][$k] = 0;
+                    } else {
+                        $totales[$j][$k] += $value3;
+                    }
                   }
+                  
                }
                else
                {
-                  $totales[$j] = $value2; //contiene matriz de [año $j][14 valores]
+                  $totales[$j] = $value2; //contiene matriz de [año $j][16 valores]
                }
             }
-           
             $cli = $cliente->get($i);
             foreach($value as $j => $value2)
             {
@@ -1851,19 +1855,24 @@ class mi_informe_facturas extends fs_controller
             }
             echo ";;;;;;;;;;;;;;;;;\n";
          }
-         
          foreach( array_reverse($totales, TRUE) as $i => $value)
          {
             echo ";TOTALES;".$i;
             $l_total = 0;
+            $l_total_per = 0; //Suma total periodo
             foreach($value as $j => $value3)
             {
-               if($j < 15)
+               if($j < 13)
                {
+                  if ($j<=$mesfin){
+                      $l_total_per += $value3; //calculamos el total periodo
+                  } 
                   echo ';'.number_format($value3, FS_NF0, ',', '');
                   $l_total += $value3;
+                  
                }
             }
+            echo ";".number_format($l_total_per, FS_NF0, ',', '').";"; //sacamos el total periodo
             echo ";".number_format($l_total, FS_NF0, ',', '').";\n";
          }
       }
