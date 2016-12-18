@@ -187,7 +187,7 @@ class mi_informe_facturas extends fs_controller
       
       header("content-type:application/csv;charset=UTF-8");
       header("Content-Disposition: attachment; filename=\"facturas_cli.csv\"");
-      echo "serie,factura,asiento,fecha,subcuenta,descripcion,cifnif,base,iva,totaliva,totalrecargo,totalirpf,total\n";
+      echo "S,Fact,Fecha,Código,Descripción,cifnif,base,iva,totaliva,totalrecargo,totalirpf,total\n";
       
       $codserie = FALSE;
       if($_POST['codserie'] != '')
@@ -220,10 +220,11 @@ class mi_informe_facturas extends fs_controller
          {
             $linea = array(
                 'serie' => $fac->codserie,
-                'factura' => $fac->numero,
-                'asiento' => '-',
+                'factura' => $fac->codigo,
+                //'asiento' => '-',
                 'fecha' => $fac->fecha,
-                'subcuenta' => '-',
+                //'subcuenta' => '-',
+                'cliente'=> $fac->codcliente,
                 'descripcion' => $fac->nombrecliente,
                 'cifnif' => $fac->cifnif,
                 'base' => 0,
