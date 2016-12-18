@@ -408,7 +408,6 @@ class mi_informe_facturas extends fs_controller
       {
          $codserie = $_POST['codserie'];
       }
-      
       $codagente = FALSE;     
       if($_POST['codagente'] != '')
       {

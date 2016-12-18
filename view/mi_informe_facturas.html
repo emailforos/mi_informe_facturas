@@ -844,6 +844,7 @@
                      <select class="form-control" name="codserie">
                         <option value="">Todas</option>
                         <option value="">-----</option>
+                        <option value="AXIXF">General,Export UE,Export no UE</option>
                         {loop="$fsc->serie->all()"}
                         <option value="{$value->codserie}">{$value->descripcion}</option>
                         {/loop}

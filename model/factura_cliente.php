@@ -33,9 +33,8 @@ class factura_cliente extends FacturaScripts\model\factura_cliente
        $sql = "SELECT * FROM ".$this->table_name." WHERE fecha >= ".$this->var2str($desde)." AND fecha <= ".$this->var2str($hasta);
        if($codserie)
        {
-            if ($codserie == ""){
-                $sql .= " AND codserie = A AND XI AND XF AND Y";/*.$this->var2str($codserie);*/
-            } else {
+            $sql .= " AND codserie IN ('A','XI','XF')";
+            if ($codserie!="AXIXF"){
                 $sql .= " AND codserie = ".$this->var2str($codserie);
             }
        }
@@ -59,7 +58,7 @@ class factura_cliente extends FacturaScripts\model\factura_cliente
           }
        }
        $sql .= " ORDER BY fecha ASC, codigo ASC;";
-
+       //var_dump($sql); exit;
        $data = $this->db->select($sql);
        if($data)
        {
