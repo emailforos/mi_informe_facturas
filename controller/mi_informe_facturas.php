@@ -580,7 +580,7 @@ class mi_informe_facturas extends fs_controller
                        $elis = $facturas[$linea_actual]->codigo;
 
                     } else {
-                       $linea['factura'] = '-';
+                       $linea['factura'] = ' " ';
                        $linea['base'] = $this->show_numero($liva->neto);
                        $linea['iva'] = $this->show_numero($liva->iva);
                        $linea['totaliva'] = $this->show_numero($liva->totaliva);
@@ -588,7 +588,6 @@ class mi_informe_facturas extends fs_controller
                        $linea['total'] = $this->show_numero($liva->totallinea);
                        $pdf_doc->add_table_row($linea);
                        $elis = $facturas[$linea_actual]->codigo;
-
                     }              
                     if($nueva_linea) {
                         $i++;
@@ -762,9 +761,10 @@ class mi_informe_facturas extends fs_controller
                array(
                    'serie' => '<b>S</b>',
                    'factura' => '<b>Fact.</b>',
-                   'asiento' => '<b>Asi.</b>',
+                   //'asiento' => '<b>Asi.</b>',
                    'fecha' => '<b>Fecha</b>',
-                   'subcuenta' => '<b>Subcuenta</b>',
+                   //'subcuenta' => '<b>Subcuenta</b>',
+                   'proveedor' => '<b>Código</b>',
                    'descripcion' => '<b>Descripción</b>',
                    'cifnif' => '<b>'.FS_CIFNIF.'</b>',
                    'base' => '<b>Base Im.</b>',
@@ -780,9 +780,10 @@ class mi_informe_facturas extends fs_controller
                $linea = array(
                    'serie' => $facturas[$linea_actual]->codserie,
                    'factura' => $facturas[$linea_actual]->codigo,
-                   'asiento' => '-',
+                   //'asiento' => '-',
                    'fecha' => $facturas[$linea_actual]->fecha,
-                   'subcuenta' => '-',
+                   //'subcuenta' => '-',
+                   'cliente'=> $facturas[$linea_actual]->codproveedor,
                    'descripcion' => $facturas[$linea_actual]->nombre,
                    'cifnif' => $facturas[$linea_actual]->cifnif,
                    'base' => 0,
@@ -810,6 +811,7 @@ class mi_informe_facturas extends fs_controller
                   /// añade la línea al PDF
                   $pdf_doc->add_table_row($linea);
                   $linea['totalirpf'] = '-';
+                  $elis = $facturas[$linea_actual]->codigo;
                }
                
                $linivas = $facturas[$linea_actual]->get_lineas_iva();
@@ -832,17 +834,28 @@ class mi_informe_facturas extends fs_controller
                      {
                         $impuestos[$liva->iva]['iva'] = $liva->totaliva;
                      }
-                     else
+                     else {
                         $impuestos[$liva->iva]['iva'] += $liva->totaliva;
-                     
-                     /// completamos y añadimos la línea al PDF
-                     $linea['base'] = $this->show_numero($liva->neto);
-                     $linea['iva'] = $this->show_numero($liva->iva);
-                     $linea['totaliva'] = $this->show_numero($liva->totaliva);
-                     $linea['totalrecargo'] = $this->show_numero($liva->totalrecargo);
-                     $linea['total'] = $this->show_numero($liva->totallinea);
-                     $pdf_doc->add_table_row($linea);
-                     
+                     }
+                     if ($elis != $facturas[$linea_actual]->codigo){
+                        /// completamos y añadimos la línea al PDF
+                        $linea['base'] = $this->show_numero($liva->neto);
+                        $linea['iva'] = $this->show_numero($liva->iva);
+                        $linea['totaliva'] = $this->show_numero($liva->totaliva);
+                        $linea['totalrecargo'] = $this->show_numero($liva->totalrecargo);
+                        $linea['total'] = $this->show_numero($liva->totallinea);
+                        $pdf_doc->add_table_row($linea);
+                        $elis = $facturas[$linea_actual]->codigo;
+                     } else {
+                        $linea['factura'] = ' " ';
+                        $linea['base'] = $this->show_numero($liva->neto);
+                        $linea['iva'] = $this->show_numero($liva->iva);
+                        $linea['totaliva'] = $this->show_numero($liva->totaliva);
+                        $linea['totalrecargo'] = $this->show_numero($liva->totalrecargo);
+                        $linea['total'] = $this->show_numero($liva->totallinea);
+                        $pdf_doc->add_table_row($linea);
+                        $elis = $facturas[$linea_actual]->codigo;                       
+                     }
                      if($nueva_linea)
                      {
                         $i++;
