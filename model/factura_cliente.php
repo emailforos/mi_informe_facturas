@@ -26,6 +26,104 @@ require_once 'plugins/facturacion_base/model/core/factura_cliente.php';
  */
 class factura_cliente extends FacturaScripts\model\factura_cliente
 {
+    public function new_codigo() {
+             /* Versión nueva */
+      /// buscamos un hueco
+      
+      $num = 1;
+      if( defined('FS_NFACTURA_CLI') )
+      {
+         /// mantenemos compatibilidad con versiones anteriores
+         $num = intval(FS_NFACTURA_CLI);
+      }
+      $serie0 = new serie();
+      $serie = $serie0->get($this->codserie);
+      if($serie)
+      {
+         /// ¿Se ha definido un nº de factura inicial para esta serie y ejercicio?
+         if($this->codejercicio == $serie->codejercicio)
+         {
+            $num = $serie->numfactura;
+         }
+      }
+      
+      //buscamos un hueco //
+      $encontrado = FALSE;
+      $fecha = $this->fecha;
+      $data = $this->db->select("SELECT ".$this->db->sql_to_int('numero')." as numero,fecha
+         FROM ".$this->table_name." WHERE codejercicio = ".$this->var2str($this->codejercicio).
+         " AND codserie = ".$this->var2str($this->codserie)." ORDER BY numero ASC;");
+      if($data)
+      {
+         foreach($data as $d)
+         {
+            if( intval($d['numero']) < $num )
+            {
+               /**
+                * El número de la factura es menor que el inicial.
+                * El usuario ha cambiado el número inicial después de hacer
+                * facturas.
+                */
+            }
+            else if( intval($d['numero']) == $num )
+            {
+               /// el número es correcto, avanzamos
+               $num++;
+            }
+            else
+            {
+               /// Hemos encontrado un hueco y debemos usar el número y la fecha.
+               $encontrado = TRUE;
+               $fecha = Date('d-m-Y', strtotime($d['fecha']));
+               break;
+            }
+         }
+      }
+      if($encontrado)
+      {
+         $this->numero = $num;
+         $this->fecha = $fecha;
+      }
+      else
+      {
+         $this->numero = $num;
+         
+         /// nos guardamos la secuencia para abanq/eneboo
+         $sec = new secuencia();
+         $sec = $sec->get_by_params2($this->codejercicio, $this->codserie, 'nfacturacli');
+         if($sec)
+         {
+            if($sec->valorout <= $this->numero)
+            {
+               $sec->valorout = 1 + $this->numero;
+               $sec->save();
+            }
+         }
+      }
+      
+      if(FS_NEW_CODIGO == 'eneboo')
+      {
+         if ($this->codserie == "A") {
+            $this->codigo = $this->codejercicio.'-'.sprintf('%04s', $this->numero);
+         } else if ($this->codserie == "XI") {
+            $this->codigo = $this->codserie.$this->codejercicio.'-'.sprintf('%04s', $this->numero);
+         }  else if ($this->codserie == "XF") {
+            $this->codigo = $this->codserie.$this->codejercicio.'-'.sprintf('%04s', $this->numero);
+         }  else {
+            $this->codigo = $this->codejercicio.sprintf('%02s', $this->codserie).sprintf('%06s', $this->numero);
+         }
+      }
+      else
+      {
+          if ($this->codserie=="A"){
+              $this->codigo = 'FAC'.$this->numero;
+          }
+          else
+          {    
+            $this->codigo = 'FAC'.$this->codejercicio.$this->codserie.$this->numero;
+          }
+      }
+    }
     /* Modificacion para que devuelva solo las series A, XI and XF de ventas reales */
     public function all_desde($desde, $hasta, $codserie = FALSE, $codagente = FALSE, $codcliente = FALSE, $estado = FALSE)
     {
@@ -33,10 +131,13 @@ class factura_cliente extends FacturaScripts\model\factura_cliente
        $sql = "SELECT * FROM ".$this->table_name." WHERE fecha >= ".$this->var2str($desde)." AND fecha <= ".$this->var2str($hasta);
        if($codserie)
        {
-            $sql .= " AND codserie IN ('A','XI','XF')";
-            if ($codserie!="AXIXF"){
+            if ($codserie=="AXIXF"){
+                $sql .= " AND codserie IN ('A','XI','XF')";
+            } else if ($codserie=="FFBFC"){
+                $sql .= " AND codserie IN ('F','FC','FB')";
+            } else {
                 $sql .= " AND codserie = ".$this->var2str($codserie);
-            }
+            } 
        }
        if($codagente)
        {
