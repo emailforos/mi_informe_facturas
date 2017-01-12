@@ -779,7 +779,7 @@ class mi_informe_facturas extends fs_controller
             {
                $linea = array(
                    'serie' => $facturas[$linea_actual]->codserie,
-                   'factura' => $facturas[$linea_actual]->codigo,
+                   'factura' => $facturas[$linea_actual]->numproveedor,
                    //'asiento' => '-',
                    'fecha' => $facturas[$linea_actual]->fecha,
                    //'subcuenta' => '-',
@@ -1730,7 +1730,16 @@ class mi_informe_facturas extends fs_controller
       
       if($_POST['codserie'] != '')
       {
-         $sql .= " AND codserie = ".$this->empresa->var2str($_POST['codserie']);
+        if ($_POST['codserie']=="AXIXFY"){
+            $sql .= " AND codserie IN ('A','XI','XF','Y')";
+        } else if ($_POST['codserie']=="FFBFC"){
+            $sql .= " AND codserie IN ('F','FC','FB')";
+        } else if ($_POST['codserie']=="ACDEXIXFY"){
+            $sql .= " AND codserie IN ('A','XI','XF','Y','C','D','E')";
+        } else {
+            $sql .= " AND codserie = ".$this->empresa->var2str($_POST['codserie']);
+        } 
+         
       }
       
       if($_POST['codagente'] != '')

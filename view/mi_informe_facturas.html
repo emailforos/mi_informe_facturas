@@ -844,8 +844,8 @@
                      <select class="form-control" name="codserie">
                         <option value="">Todas</option>
                         <option value="">-----</option>
-                        <option value="AXIXF">Todas CARRIZO ASESORES</option>
-                        <option value="FFBFC">Comisiones RM</option>
+                        <option value="AXIXFY">Todas CARRIZO ASESORES</option>
+                        <option value="FFBFC">Comisiones todas fam.RM</option>
                         {loop="$fsc->serie->all()"}
                         <option value="{$value->codserie}">{$value->descripcion}</option>
                         {/loop}
@@ -925,6 +925,8 @@
                      <select class="form-control" name="codserie">
                         <option value="">Todas</option>
                         <option value="">-----</option>
+                        <option value="AXIXFY">Todas CARRIZO</option>
+                        <option value="ACDEXIXFY">Todas TRAFOS</option>
                         {loop="$fsc->serie->all()"}
                         <option value="{$value->codserie}">{$value->descripcion}</option>
                         {/loop}
