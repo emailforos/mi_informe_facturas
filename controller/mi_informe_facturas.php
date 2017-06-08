@@ -105,6 +105,17 @@ class mi_informe_facturas extends fs_controller
                $this->informe_ventas();
             }
          }
+         else if($_POST['informe'] == 'ventascli')
+         {
+            if($_POST['unidades'] == 'TRUE')
+            {
+               $this->informe_ventas_unidades();
+            }
+            else
+            {
+               $this->informe_ventas_cliente();
+            }
+         }
          else
          {
             if($_POST['unidades'] == 'TRUE')
@@ -1762,7 +1773,6 @@ class mi_informe_facturas extends fs_controller
          header("content-type:application/csv;charset=UTF-8");
          header("Content-Disposition: attachment; filename=\"informe_ventas.csv\"");
          echo "codcliente;nombre;año;ene;feb;mar;abr;may;jun;jul;ago;sep;oct;nov;dic;periodo;%comp;total;%VAR\n";
-         
          $cliente = new cliente();
          $stats = array();
          // Iniciamos stats con datos vacíos
@@ -1773,6 +1783,7 @@ class mi_informe_facturas extends fs_controller
          {
             $anyo = date('Y', strtotime($d['fecha']));
             $mes = date('n', strtotime($d['fecha']));
+            
             if( !isset($stats[ $d['codcliente'] ][ $anyo ]) )
             {
                 foreach ($anyos as $a) //Iniciamos para cada año. No para solo los años que hay ventas
@@ -1794,7 +1805,7 @@ class mi_informe_facturas extends fs_controller
                        14 => 0,
                        15 => 0,
                        16 => 0
-                   );
+                   );                    
                 }
             }
             $stats[ $d['codcliente'] ][ $anyo ][ $mes ] += floatval($d['total']);
@@ -1897,6 +1908,186 @@ class mi_informe_facturas extends fs_controller
             echo ";".number_format($l_total_per, FS_NF0, ',', '').";"; //sacamos el total periodo
             echo ";".number_format($l_total, FS_NF0, ',', '').";\n";
          }
+      }
+      else
+      {
+         $this->new_error_msg('Sin resultados.');
+      }
+   }
+   
+      private function informe_ventas_cliente() //NUEVO
+   {
+      $sql = "SELECT codcliente,fecha,SUM(neto) as total FROM facturascli"
+              . " WHERE fecha >= ".$this->empresa->var2str($_POST['desde'])
+              . " AND fecha <= ".$this->empresa->var2str($_POST['hasta']);
+      //Busco todos los años entre las dos fechas
+      $anyoini = date('Y', strtotime($_POST['desde']));
+      $anyofin = date('Y', strtotime($_POST['hasta']));
+      $mesfin = date('n', strtotime($_POST['hasta']));
+      $i=$anyofin;
+      $anyos = array();
+      while ($anyoini<=$i ){
+          $anyos[$i]=(string)$i;
+          $i--;
+      }
+      if($_POST['codpais'] != '')
+      {
+         $sql .= " AND codpais = ".$this->empresa->var2str($_POST['codpais']);
+      }
+      
+      if($_POST['provincia'] != '')
+      {
+         $sql .= " AND lower(provincia) = lower(".$this->empresa->var2str($_POST['provincia']).")";
+      }
+      
+      if($_POST['codcliente'] != '')
+      {
+         $sql .= " AND codcliente = ".$this->empresa->var2str($_POST['codcliente']);
+      }
+      
+      if($_POST['codserie'] != '')
+      {
+        if ($_POST['codserie']=="AXIXFY"){
+            $sql .= " AND codserie IN ('A','XI','XF','Y')";
+        } else if ($_POST['codserie']=="FFBFC"){
+            $sql .= " AND codserie IN ('F','FC','FB')";
+        } else if ($_POST['codserie']=="ACDEXIXFY"){
+            $sql .= " AND codserie IN ('A','XI','XF','Y','C','D','E')";
+        } else {
+            $sql .= " AND codserie = ".$this->empresa->var2str($_POST['codserie']);
+        } 
+         
+      }
+      
+      if($_POST['codagente'] != '')
+      {
+         $sql .= " AND codagente = ".$this->empresa->var2str($_POST['codagente']);
+      }
+      
+      if($_POST['minimo'] != '')
+      {
+         $sql .= " AND neto > ".$this->empresa->var2str($_POST['minimo']);
+      }
+      
+      $sql .= " GROUP BY codcliente,fecha ORDER BY codcliente ASC, fecha DESC;";
+      
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         $this->template = FALSE;
+         
+         header("content-type:application/csv;charset=UTF-8");
+         header("Content-Disposition: attachment; filename=\"informe_ventas_cliente.csv\"");
+         //echo "codcliente;nombre;año;%comp;total;%VAR\n";
+         
+         $cliente = new cliente();
+         $stats = array();
+         // Iniciamos stats con datos vacíos
+         $lista = "codcliente;nombre;";
+         //genero la cabecera en funcion de los años
+         $i=0;
+         foreach ($anyos as $a){
+            if ($i==0) {
+                $lista .= $a .";%comp;"; 
+                $i=$i+1;
+            } else {
+                $lista .= $a .";%comp;"; 
+                $i=$i+2;
+            }
+         }
+         $lista .= "\n";
+         $i=$i;
+         echo $lista;
+                   //var_dump($data); exit;
+         foreach($data as $d)
+         {
+ 
+            $anyo = date('Y', strtotime($d['fecha']));
+            $mes = date('n', strtotime($d['fecha']));
+            
+            if( !isset($stats[ $d['codcliente'] ]) )
+            {
+                foreach ($anyos as $a) //Iniciamos para cada año. No para solo los años que hay ventas
+                {
+                    $stats[ $d['codcliente'] ][ $a ] = '0';
+                }          
+            }
+            //var_dump($stats); exit;
+            $stats[ $d['codcliente'] ][ $anyo ] += floatval($d['total']);
+            //var_dump($stats); exit;
+         }
+         //var_dump($stats); exit;
+         $totales = array();
+         foreach($stats as $j => $value2)
+         {
+            /// calculamos la variación
+            // $value2 almacena los totales de cada uno de los años para el cliente $j
+            $anteper = 0;
+            $iter = 0;
+            //$value[0] ='0';
+            //var_dump($value); exit;
+            $y=$anyofin;
+            for ($x=0;$x<=$i;$x++){ //Asignamos la facturacion anual a cada casilla.
+                    $value[$x] ='0';
+                    if ($x%2==0){
+                            $value[$x] =$value2[$y];
+                            $y=$y-1;
+                    }                            
+            }
+            
+            for ($x=0;$x<=$i;$x++){ //Hacemos la comparativa.
+                
+                if ($x%2!=0 && $x!=$i){
+                    $anterior = $value[$x-1];
+                    $posterior = $value[$x+1];
+                    if ($posterior==0){
+                        if ($anterior!=0){
+                            $value[$x] =100;
+                        } else {
+                            $value[$x] =0;
+                        }
+                    } else {
+                        $value[$x] =($anterior - $posterior)*100/$posterior;
+                    }
+                }
+            }
+            $cli = $cliente->get($j);           
+               //var_dump($value2); exit;    
+               if($cli)
+               {
+                  echo '"'.$j.'";'.$this->fix_html($cli->nombre).'';
+                  //var_dump($j,$k); exit;  
+               }
+               else
+               {
+                  echo '"'.$j.'";-';
+               }
+               foreach($value as $value2){
+                echo ';'.number_format($value2, FS_NF0, ',', '');        
+               }
+               echo "\n";
+            //echo ";;;;;;;;;;;;;;;;;\n";
+         }
+         /*foreach( array_reverse($totales, TRUE) as $i => $value)
+         {
+            echo ";TOTALES;".$i;
+            $l_total = 0;
+            $l_total_per = 0; //Suma total periodo
+            foreach($value as $j => $value3)
+            {
+               if($j < 13)
+               {
+                  if ($j<=$mesfin){
+                      $l_total_per += $value3; //calculamos el total periodo
+                  } 
+                  echo ';'.number_format($value3, FS_NF0, ',', '');
+                  $l_total += $value3;
+                  
+               }
+            }
+            echo ";".number_format($l_total_per, FS_NF0, ',', '').";"; //sacamos el total periodo
+            echo ";".number_format($l_total, FS_NF0, ',', '').";\n";
+         }*/
       }
       else
       {
