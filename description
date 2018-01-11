@@ -1,0 +1,8 @@
+Pequeñas personalizaciones de Informes Ventas:
+<ul>
+<li>Añadir código cliente en informe facturas ventas
+<li>No mostrar número factura repetido cuando hay irpf o varias líneas de IVA.
+<li>Añadidos años sin movimiento para poder ver evolución.
+</ul>
+Añadida una comparativa entre la facturacion anual de cada cliente.
+
