@@ -132,7 +132,7 @@ class factura_cliente extends FacturaScripts\model\factura_cliente
        if($codserie)
        {
             if ($codserie=="AXIXFY"){
-                $sql .= " AND codserie IN ('A','XI','XF','Y')";
+                $sql .= " AND codserie IN ('A','XI','XF','Y','G','H','J')";
             } else if ($codserie=="FFBFC"){
                 $sql .= " AND codserie IN ('F','FC','FB')";
             } else if ($codserie=="ACDEXIXFY"){
