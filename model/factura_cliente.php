@@ -125,7 +125,7 @@ class factura_cliente extends FacturaScripts\model\factura_cliente
       }
     }
     /* Modificacion para que devuelva solo las series A, XI and XF de ventas reales */
-    public function all_desde($desde, $hasta, $codserie = FALSE, $codagente = FALSE, $codcliente = FALSE, $estado = FALSE)
+    public function all_desde($desde, $hasta, $codserie = FALSE, $codagente = FALSE, $codcliente = FALSE, $estado = FALSE, $codpago = FALSE, $codalmacen = FALSE)
     {
        $faclist = array();
        $sql = "SELECT * FROM ".$this->table_name." WHERE fecha >= ".$this->var2str($desde)." AND fecha <= ".$this->var2str($hasta);
