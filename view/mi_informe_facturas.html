@@ -10,6 +10,7 @@
       document.informe_facturas.codcliente.value = '';
       document.listado_facturas.ac_cliente.value = '';
       document.informe_facturas.ac_cliente2.value = '';
+      document.informe_facturas.ac_cliente3.value = '';
    }
    function clean_proveedor()
    {
@@ -33,6 +34,18 @@
          }
       });
       $("#ac_cliente2").autocomplete({
+         serviceUrl: '{$fsc->url()}',
+         paramName: 'buscar_cliente',
+         onSelect: function (suggestion) {
+            if(suggestion)
+            {
+               if(document.informe_facturas.codcliente.value != suggestion.data && suggestion.data != '')
+               {
+                  document.informe_facturas.codcliente.value = suggestion.data;
+               }
+            }
+         }
+      });$("#ac_cliente3").autocomplete({
          serviceUrl: '{$fsc->url()}',
          paramName: 'buscar_cliente',
          onSelect: function (suggestion) {
@@ -1067,9 +1080,9 @@
                   <div class="form-group">
                      Cliente:
                      <div class="input-group">
-                        <input class="form-control" type="text" name="ac_cliente2" id="ac_cliente2" placeholder="Buscar" autocomplete="off"/>
+                        <input class="form-control" type="text" name="ac_cliente3" id="ac_cliente3" placeholder="Buscar" autocomplete="off"/>
                         <span class="input-group-btn">
-                           <button class="btn btn-default" type="button" onclick="clean_cliente();document.informe_facturas.ac_cliente2.focus();">
+                           <button class="btn btn-default" type="button" onclick="clean_cliente();document.informe_facturas.ac_cliente3.focus();">
                               <span class="glyphicon glyphicon-edit"></span>
                            </button>
                         </span>
