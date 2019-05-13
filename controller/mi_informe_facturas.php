@@ -1741,8 +1741,8 @@ class mi_informe_facturas extends fs_controller
       
       if($_POST['codserie'] != '')
       {
-        if ($_POST['codserie']=="AXIXFY"){
-            $sql .= " AND codserie IN ('A','XI','XF','Y','G','H','J')";
+        if ($_POST['codserie']=="AXIXFYGK"){
+            $sql .= " AND codserie IN ('A','XI','XF','Y','G','H','J','K')";
         } else if ($_POST['codserie']=="FFBFC"){
             $sql .= " AND codserie IN ('F','FC','FB')";
         } else if ($_POST['codserie']=="ACDEXIXFY"){
