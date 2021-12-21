@@ -518,7 +518,6 @@ class mi_informe_facturas extends fs_controller
             );
             for($i = 0; $i < $lppag AND $linea_actual < $total_lineas; $i++)
             {
-               var_dump($facturas[$linea_actual]); exit();
                $linea = array(
                     //'serie' => $facturas[$linea_actual]->codserie,
                     'serie' => $linea_actual+1,
