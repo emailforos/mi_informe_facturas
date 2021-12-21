@@ -496,17 +496,16 @@ class mi_informe_facturas extends fs_controller
             
             $pdf_doc->pdf->ezText("\n", 14);
             
-            /// tabla principal
+            // tabla principal
             $pdf_doc->new_table();
-            $elis = 0;
             $pdf_doc->add_table_header(
                array(
-                   'serie' => '<b>S</b>',
+                   'serie' => '<b>N</b>',
                    'factura' => '<b>Fact.</b>',
                    //'asiento' => '<b>Asi.</b>',
                    'fecha' => '<b>Fecha</b>',
                    //'subcuenta' => '<b>Subcuenta</b>',
-                   'cliente'=> '<b>Código</b>',
+                   'proveedor' => '<b>Código</b>',
                    'descripcion' => '<b>Descripción</b>',
                    'cifnif' => '<b>'.FS_CIFNIF.'</b>',
                    'base' => '<b>Base Im.</b>',
@@ -519,8 +518,9 @@ class mi_informe_facturas extends fs_controller
             );
             for($i = 0; $i < $lppag AND $linea_actual < $total_lineas; $i++)
             {
-                $linea = array(
-                    'serie' => $facturas[$linea_actual]->codserie,
+               $linea = array(
+                    //'serie' => $facturas[$linea_actual]->codserie,
+                    'serie' => $linea_actual+1,
                     'factura' => $facturas[$linea_actual]->codigo,
                     //'asiento' => '-',
                     'fecha' => $facturas[$linea_actual]->fecha,
@@ -770,7 +770,7 @@ class mi_informe_facturas extends fs_controller
             $pdf_doc->new_table();
             $pdf_doc->add_table_header(
                array(
-                   'serie' => '<b>S</b>',
+                   'serie' => '<b>N</b>',
                    'factura' => '<b>Fact.</b>',
                    //'asiento' => '<b>Asi.</b>',
                    'fecha' => '<b>Fecha</b>',
@@ -789,7 +789,8 @@ class mi_informe_facturas extends fs_controller
             for($i = 0; $i < $lppag AND $linea_actual < $total_lineas; $i++)
             {
                $linea = array(
-                   'serie' => $facturas[$linea_actual]->codserie,
+                   //'serie' => $facturas[$linea_actual]->codserie,
+                   'serie' => $linea_actual+1,
                    'factura' => $facturas[$linea_actual]->numproveedor,
                    //'asiento' => '-',
                    'fecha' => $facturas[$linea_actual]->fecha,
