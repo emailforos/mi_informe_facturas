@@ -505,7 +505,7 @@ class mi_informe_facturas extends fs_controller
                    //'asiento' => '<b>Asi.</b>',
                    'fecha' => '<b>Fecha</b>',
                    //'subcuenta' => '<b>Subcuenta</b>',
-                   'proveedor' => '<b>Código</b>',
+                   'cliente' => '<b>Código</b>',
                    'descripcion' => '<b>Descripción</b>',
                    'cifnif' => '<b>'.FS_CIFNIF.'</b>',
                    'base' => '<b>Base Im.</b>',
@@ -518,6 +518,7 @@ class mi_informe_facturas extends fs_controller
             );
             for($i = 0; $i < $lppag AND $linea_actual < $total_lineas; $i++)
             {
+               var_dump($facturas[$linea_actual]); exit();
                $linea = array(
                     //'serie' => $facturas[$linea_actual]->codserie,
                     'serie' => $linea_actual+1,
@@ -795,7 +796,7 @@ class mi_informe_facturas extends fs_controller
                    //'asiento' => '-',
                    'fecha' => $facturas[$linea_actual]->fecha,
                    //'subcuenta' => '-',
-                   'cliente'=> $facturas[$linea_actual]->codproveedor,
+                   'proveedor'=> $facturas[$linea_actual]->codproveedor,
                    'descripcion' => $facturas[$linea_actual]->nombre,
                    'cifnif' => $facturas[$linea_actual]->cifnif,
                    'base' => 0,
